@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BTC 五分钟事件合约模拟系统</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#121d30;--line:#263650;--muted:#9fb0c8;--text:#edf4ff;--blue:#4f8cff;--green:#25c58a;--red:#ff6b78}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{max-width:980px;margin:auto;padding:22px 16px 48px}h1{font-size:25px;margin:0 0 8px}.sub{color:var(--muted);line-height:1.6;margin-bottom:20px}
+.notice{background:#302713;border:1px solid #725b27;color:#ffe2a0;border-radius:12px;padding:12px;margin:16px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.metric{font-size:25px;font-weight:700;margin-top:6px}.muted{color:var(--muted);font-size:13px}
+label{display:block;color:var(--muted);font-size:14px;margin:10px 0 6px}input,select{width:100%;padding:12px;border-radius:9px;border:1px solid var(--line);background:#0c1627;color:var(--text);font-size:16px}
+button{border:0;border-radius:9px;padding:12px 16px;background:var(--blue);color:white;font-weight:700;font-size:15px;margin:12px 8px 0 0}button.secondary{background:#33445e}button.danger{background:#9e3948}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:120px}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:10px 7px;border-bottom:1px solid var(--line)}th{color:var(--muted)}
+.good{color:var(--green)}.bad{color:var(--red)}
+</style>
+</head>
+<body><main>
+<h1>BTC 五分钟事件合约模拟系统</h1>
+<div class="sub">中文纸面交易面板 · 仅用于学习和策略测试 · 不连接 Gate 账户、不发送真实订单</div>
+<div class="notice">重要：本版本是手动输入数据的本地模拟工具，不含实时行情、自动预测或真实交易功能。请以 Gate 当轮市场规则及实际结算数据为准。</div>
+<div class="grid">
+ <div class="card"><div class="muted">模拟账户余额</div><div class="metric" id="balance">100.00 USDT</div></div>
+ <div class="card"><div class="muted">累计模拟盈亏</div><div class="metric" id="pnl">0.00 USDT</div></div>
+ <div class="card"><div class="muted">已结算笔数 / 胜率</div><div class="metric" id="stats">0 / 0%</div></div>
+</div>
+<div class="card">
+<h3>创建模拟订单</h3>
+<div class="grid">
+ <div><label>方向</label><select id="side"><option value="UP">看涨（Up）</option><option value="DOWN">看跌（Down）</option></select></div>
+ <div><label>模拟买入价格（每份 USDT）</label><input id="price" type="number" min=".01" max=".99" step=".01" value=".50"></div>
+ <div><label>投入金额（USDT）</label><input id="stake" type="number" min=".01" step=".01" value="5"></div>
+ <div><label>目标价格（BTC/USD）</label><input id="target" type="number" min="0" step=".01" placeholder="输入目标价"></div>
+</div>
+<button onclick="createOrder()">创建模拟订单</button>
+</div>
+<div class="card">
+<h3>结算待处理订单</h3>
+<div class="muted">输入本轮最终 TWAP（BTC/USD）。此数值必须来自你核实的市场结算数据，不能用普通现货价格代替。</div>
+<label>最终 TWAP（BTC/USD）</label><input id="finalTwap" type="number" min="0" step=".01" placeholder="输入最终 TWAP">
+<button onclick="settleOrders()">按最终 TWAP 结算全部待处理订单</button>
+<button class="secondary" onclick="resetAll()">重置模拟账户</button>
+</div>
+<div class="card"><h3>待结算订单</h3><div id="pending" class="muted">暂无待结算订单</div></div>
+<div class="card"><h3>交易记录</h3><div style="overflow-x:auto"><table><thead><tr><th>时间</th><th>方向</th><th>目标价</th><th>买入价</th><th>投入</th><th>结果</th><th>盈亏</th></tr></thead><tbody id="history"><tr><td colspan="7" class="muted">暂无记录</td></tr></tbody></table></div></div>
+<div class="muted">模拟规则：每份面值按 1 USDT 计算；份数 = 投入金额 ÷ 买入价格。胜出时每份结算 1 USDT，失败时结算 0。未计入手续费、滑点或提前退出。该规则仅为简化演示，实际市场规则可能不同。</div>
+</main>
+<script>
+let balance=100,orders=[],history=[];
+const $=id=>document.getElementById(id),fmt=n=>Number(n).toFixed(2);
+function render(){
+ $('balance').textContent=fmt(balance)+' USDT';
+ const pnl=history.reduce((s,x)=>s+x.pnl,0);$('pnl').textContent=(pnl>=0?'+':'')+fmt(pnl)+' USDT';$('pnl').className='metric '+(pnl>=0?'good':'bad');
+ const wins=history.filter(x=>x.pnl>0).length;$('stats').textContent=history.length+' / '+(history.length?Math.round(wins/history.length*100):0)+'%';
+ $('pending').innerHTML=orders.length?orders.map((o,i)=>`${i+1}. ${o.side==='UP'?'看涨':'看跌'} · 目标价 ${o.target} · 投入 ${fmt(o.stake)} USDT · 买入价 ${o.price}`).join('<br>'):'暂无待结算订单';
+ $('history').innerHTML=history.length?history.slice().reverse().map(x=>`<tr><td>${x.time}</td><td>${x.side==='UP'?'看涨':'看跌'}</td><td>${x.target}</td><td>${x.price}</td><td>${fmt(x.stake)}</td><td>${x.win?'胜':'负'}</td><td class="${x.pnl>=0?'good':'bad'}">${x.pnl>=0?'+':''}${fmt(x.pnl)}</td></tr>`).join(''):'<tr><td colspan="7" class="muted">暂无记录</td></tr>';
+}
+function createOrder(){
+ const side=$('side').value,price=+$('price').value,stake=+$('stake').value,target=+$('target').value;
+ if(!(price>=.01&&price<=.99)||!(stake>0)||!(target>0)){alert('请检查买入价格、投入金额和目标价格。');return}
+ if(stake>balance){alert('模拟余额不足。');return}
+ balance-=stake;orders.push({side,price,stake,target});render();
+}
+function settleOrders(){
+ const final=+$('finalTwap').value;if(!(final>0)){alert('请输入有效的最终 TWAP。');return}
+ if(!orders.length){alert('目前没有待结算订单。');return}
+ orders.forEach(o=>{const up=final>=o.target,win=o.side==='UP'?up:!up;const payout=win?o.stake/o.price:0;const pnl=payout-o.stake;balance+=payout;history.push({...o,win,pnl,time:new Date().toLocaleString('zh-CN')})});
+ orders=[];$('finalTwap').value='';render();
+}
+function resetAll(){if(!confirm('确定清空全部模拟订单和记录，并恢复 100 USDT 初始余额？'))return;balance=100;orders=[];history=[];render()}
+render();
+</script></body></html>
