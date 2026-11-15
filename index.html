@@ -2,378 +2,621 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BTC 五分钟模拟交易系统</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>BTC 五分钟全自动模拟交易系统</title>
 <style>
-:root{color-scheme:dark;--bg:#0b1220;--panel:#121d30;--line:#26364f;--text:#edf3ff;--muted:#9aabc4;--green:#28c78a;--red:#ff667a;--blue:#62a7ff}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:16px}
-main{max-width:900px;margin:auto}h1{font-size:23px;margin:8px 0 5px}.sub{color:var(--muted);font-size:13px;margin-bottom:18px}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0}
-.panel h2{font-size:17px;margin:0 0 13px}.price{font-size:32px;font-weight:750;letter-spacing:.3px}.muted{color:var(--muted);font-size:12px}
-.status{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);margin-top:8px}.dot{width:8px;height:8px;border-radius:50%;background:#f5b942}.dot.ok{background:var(--green)}.dot.bad{background:var(--red)}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.metric{background:#0d1728;border-radius:10px;padding:12px}.metric b{display:block;font-size:18px;margin-top:5px}
-label{display:block;color:var(--muted);font-size:13px;margin:11px 0 6px}input,select,button{width:100%;padding:12px;border-radius:9px;border:1px solid var(--line);background:#0b1628;color:var(--text);font-size:15px}
-button{background:#2469c7;border:0;font-weight:650;margin-top:13px;cursor:pointer}button.secondary{background:#26364f}button.danger{background:#9c3446}button.small{padding:8px 12px;font-size:13px;margin-top:8px;width:auto}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:10px 6px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:500}
-.good{color:var(--green)}.bad{color:var(--red)}.note{font-size:12px;line-height:1.6;color:var(--muted)}
-.kline-box{background:#0d1728;border-radius:10px;padding:12px;margin-bottom:10px}
-.kline-box h3{margin:0 0 8px;font-size:14px;color:var(--muted)}
-.trend{display:inline-block;padding:2px 8px;border-radius:6px;font-size:12px;font-weight:600}
-.trend.up{background:rgba(40,199,138,.15);color:var(--green)}.trend.down{background:rgba(255,102,122,.15);color:var(--red)}.trend.flat{background:rgba(154,171,196,.15);color:var(--muted)}
-.kline-list{font-size:12px;max-height:140px;overflow-y:auto}
-.kline-list div{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #1a2639}
-.signal{padding:10px 12px;border-radius:10px;margin-top:10px;font-size:13px;line-height:1.5}
-.signal.up{background:rgba(40,199,138,.12);border:1px solid rgba(40,199,138,.35)}
-.signal.down{background:rgba(255,102,122,.12);border:1px solid rgba(255,102,122,.35)}
-.signal.flat{background:rgba(154,171,196,.1);border:1px solid rgba(154,171,196,.25)}
-@media(max-width:520px){body{padding:11px}.price{font-size:27px}.grid,.grid3{gap:7px}.metric{padding:10px}.grid3{grid-template-columns:1fr 1fr}}
+:root{color-scheme:dark;--bg:#0a0f1a;--panel:#121a2b;--line:#243049;--text:#edf3ff;--muted:#8fa0b8;--green:#22c57a;--red:#ff5d70;--blue:#4d8ef7;--yellow:#e6b84d}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:12px}
+main{max-width:920px;margin:auto}h1{font-size:20px;margin:4px 0 2px}.sub{color:var(--muted);font-size:12px;margin-bottom:14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0}
+.panel h2{font-size:15px;margin:0 0 10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.price{font-size:28px;font-weight:700;letter-spacing:.3px}.muted{color:var(--muted);font-size:12px}
+.status{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin-top:6px}
+.dot{width:8px;height:8px;border-radius:50%;background:#f0b429}.dot.ok{background:var(--green)}.dot.bad{background:var(--red)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.metric{background:#0d1524;border-radius:9px;padding:10px}.metric b{display:block;font-size:16px;margin-top:4px}
+label{display:block;color:var(--muted);font-size:12px;margin:8px 0 4px}
+input,select,button{width:100%;padding:10px;border-radius:8px;border:1px solid var(--line);background:#0b1422;color:var(--text);font-size:14px}
+button{background:var(--blue);border:0;font-weight:600;margin-top:8px;cursor:pointer}button:active{opacity:.85}
+button.secondary{background:#2a3a52}button.danger{background:#8b3040}button.success{background:#1a7a52}
+button.small{padding:7px 10px;font-size:12px;margin-top:0;width:auto}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;padding:8px 5px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:500}
+.good{color:var(--green)}.bad{color:var(--red)}.note{font-size:11px;line-height:1.55;color:var(--muted);margin-top:8px}
+.kline-box{background:#0d1524;border-radius:9px;padding:10px}
+.kline-box h3{margin:0 0 6px;font-size:13px;color:var(--muted)}
+.trend{display:inline-block;padding:1px 7px;border-radius:5px;font-size:11px;font-weight:600}
+.trend.up{background:rgba(34,197,122,.15);color:var(--green)}.trend.down{background:rgba(255,93,112,.15);color:var(--red)}.trend.flat{background:rgba(143,160,184,.12);color:var(--muted)}
+.kline-list{font-size:11px;max-height:110px;overflow-y:auto}
+.kline-list div{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #1a2436}
+.signal{padding:9px 11px;border-radius:9px;margin-top:8px;font-size:12px;line-height:1.5}
+.signal.up{background:rgba(34,197,122,.1);border:1px solid rgba(34,197,122,.3)}
+.signal.down{background:rgba(255,93,112,.1);border:1px solid rgba(255,93,112,.3)}
+.signal.flat{background:rgba(143,160,184,.08);border:1px solid rgba(143,160,184,.2)}
+.switch{display:flex;align-items:center;gap:8px;font-size:13px}
+.switch input{width:auto;margin:0}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.badge.on{background:rgba(34,197,122,.2);color:var(--green)}.badge.off{background:rgba(143,160,184,.15);color:var(--muted)}
+.log{font-size:11px;max-height:160px;overflow-y:auto;background:#0d1524;border-radius:8px;padding:8px;font-family:ui-monospace,monospace}
+.log div{padding:3px 0;border-bottom:1px solid #1a2436;color:var(--muted)}.log .t{color:var(--text)}
+.bar-wrap{display:flex;align-items:flex-end;gap:3px;height:48px;margin-top:6px}
+.bar{flex:1;background:var(--line);border-radius:3px 3px 0 0;min-height:2px}.bar.up{background:var(--green)}.bar.down{background:var(--red)}
+@media(max-width:540px){body{padding:10px}.price{font-size:24px}.grid4{grid-template-columns:1fr 1fr}.row3{grid-template-columns:1fr 1fr}}
 </style>
 </head>
-<body><main>
-<h1>BTC 五分钟模拟交易系统</h1>
-<div class="sub">中文测试版 · 仅模拟交易 · 不连接真实账户 · 第三版：真实二元规则 + 本地持久化 + K线修复</div>
+<body>
+<main>
+<h1>BTC 五分钟全自动模拟交易</h1>
+<div class="sub">仅本地模拟 · 不连接真实账户 · 第四版：信号自动下单 + 5分钟自动结算 + 风控</div>
 
 <section class="panel">
-<h2>BTC/USDT 实时行情</h2>
-<div class="price" id="lastPrice">等待行情连接…</div>
-<div class="status"><span class="dot" id="dot"></span><span id="connection">正在连接 Gate 公共行情</span></div>
-<div class="grid" style="margin-top:14px">
-<div class="metric"><span class="muted">24小时涨跌幅</span><b id="change">—</b></div>
-<div class="metric"><span class="muted">24小时最高</span><b id="high">—</b></div>
-<div class="metric"><span class="muted">24小时最低</span><b id="low">—</b></div>
-<div class="metric"><span class="muted">最近更新时间</span><b id="updated" style="font-size:14px">—</b></div>
+<h2>实时行情 <span class="status" style="margin:0"><span class="dot" id="dot"></span><span id="connection">连接中…</span></span></h2>
+<div class="price" id="lastPrice">—</div>
+<div class="grid" style="margin-top:10px">
+  <div class="metric"><span class="muted">24h 涨跌</span><b id="change">—</b></div>
+  <div class="metric"><span class="muted">24h 最高</span><b id="high">—</b></div>
+  <div class="metric"><span class="muted">24h 最低</span><b id="low">—</b></div>
+  <div class="metric"><span class="muted">更新时间</span><b id="updated" style="font-size:13px">—</b></div>
 </div>
-<p class="note">行情来源：Gate 公共现货 BTC/USDT ticker + 1分钟/5分钟 K线。此价格不是 Gate 五分钟事件合约的 Chainlink TWAP 结算价。</p>
+<p class="note">数据来源 Gate 公共现货。现货价 ≠ 事件合约 Chainlink TWAP，本系统仅用现货做模拟参考。</p>
 </section>
 
 <section class="panel">
-<h2>K线数据面板（1分钟 / 5分钟）</h2>
+<h2>K线（1m / 5m）</h2>
 <div class="row">
   <div class="kline-box">
-    <h3>1分钟 K线 <span id="trend1m" class="trend flat">—</span></h3>
+    <h3>1分钟 <span id="trend1m" class="trend flat">—</span></h3>
     <div class="grid3">
-      <div class="metric"><span class="muted">开盘</span><b id="o1m">—</b></div>
-      <div class="metric"><span class="muted">最高</span><b id="h1m">—</b></div>
-      <div class="metric"><span class="muted">最低</span><b id="l1m">—</b></div>
-      <div class="metric"><span class="muted">收盘</span><b id="c1m">—</b></div>
-      <div class="metric"><span class="muted">涨跌幅</span><b id="chg1m">—</b></div>
-      <div class="metric"><span class="muted">成交量</span><b id="v1m">—</b></div>
+      <div class="metric"><span class="muted">开</span><b id="o1m">—</b></div>
+      <div class="metric"><span class="muted">高</span><b id="h1m">—</b></div>
+      <div class="metric"><span class="muted">低</span><b id="l1m">—</b></div>
+      <div class="metric"><span class="muted">收</span><b id="c1m">—</b></div>
+      <div class="metric"><span class="muted">涨跌</span><b id="chg1m">—</b></div>
+      <div class="metric"><span class="muted">量</span><b id="v1m">—</b></div>
     </div>
-    <div class="muted" style="margin-top:8px">最近记录</div>
     <div class="kline-list" id="list1m"></div>
   </div>
   <div class="kline-box">
-    <h3>5分钟 K线 <span id="trend5m" class="trend flat">—</span></h3>
+    <h3>5分钟 <span id="trend5m" class="trend flat">—</span></h3>
     <div class="grid3">
-      <div class="metric"><span class="muted">开盘</span><b id="o5m">—</b></div>
-      <div class="metric"><span class="muted">最高</span><b id="h5m">—</b></div>
-      <div class="metric"><span class="muted">最低</span><b id="l5m">—</b></div>
-      <div class="metric"><span class="muted">收盘</span><b id="c5m">—</b></div>
-      <div class="metric"><span class="muted">涨跌幅</span><b id="chg5m">—</b></div>
-      <div class="metric"><span class="muted">成交量</span><b id="v5m">—</b></div>
+      <div class="metric"><span class="muted">开</span><b id="o5m">—</b></div>
+      <div class="metric"><span class="muted">高</span><b id="h5m">—</b></div>
+      <div class="metric"><span class="muted">低</span><b id="l5m">—</b></div>
+      <div class="metric"><span class="muted">收</span><b id="c5m">—</b></div>
+      <div class="metric"><span class="muted">涨跌</span><b id="chg5m">—</b></div>
+      <div class="metric"><span class="muted">量</span><b id="v5m">—</b></div>
     </div>
-    <div class="muted" style="margin-top:8px">最近记录</div>
     <div class="kline-list" id="list5m"></div>
   </div>
 </div>
-<div id="signalBox" class="signal flat">等待 K线数据后生成简单趋势提示…</div>
-<p class="note">基础趋势判断：收盘价 > 开盘价为上涨，&lt; 为下跌，接近相等为震荡。更新频率约每 2 秒一次。</p>
+<div id="signalBox" class="signal flat">等待数据生成信号…</div>
 </section>
 
 <section class="panel">
 <h2>模拟账户</h2>
-<div class="grid">
-<div class="metric"><span class="muted">模拟余额</span><b id="balance">100.00 USDT</b></div>
-<div class="metric"><span class="muted">累计盈亏</span><b id="pnl">0.00 USDT</b></div>
-<div class="metric"><span class="muted">已结算笔数</span><b id="count">0</b></div>
-<div class="metric"><span class="muted">胜率</span><b id="winrate">—</b></div>
+<div class="grid4">
+  <div class="metric"><span class="muted">余额</span><b id="balance">100.00</b></div>
+  <div class="metric"><span class="muted">累计盈亏</span><b id="pnl">0.00</b></div>
+  <div class="metric"><span class="muted">已结算</span><b id="count">0</b></div>
+  <div class="metric"><span class="muted">胜率</span><b id="winrate">—</b></div>
 </div>
+<div class="muted" style="margin-top:8px">近期盈亏条（绿胜红负）</div>
+<div class="bar-wrap" id="pnlBars"></div>
 </section>
 
 <section class="panel">
-<h2>创建模拟订单（事件合约规则）</h2>
-<div class="row">
-<div><label for="direction">方向</label><select id="direction"><option value="UP">看涨（UP）</option><option value="DOWN">看跌（DOWN）</option></select></div>
-<div><label for="entry">买入价格（每份 0.01–0.99）</label><input id="entry" type="number" min="0.01" max="0.99" step="0.01" value="0.50"></div>
+<h2>
+  自动交易引擎
+  <span id="autoBadge" class="badge off">已关闭</span>
+</h2>
+<div class="switch">
+  <input type="checkbox" id="autoOn">
+  <label for="autoOn" style="margin:0;color:var(--text)">开启全自动（信号 → 下单 → 5分钟收盘自动结算）</label>
 </div>
-<label for="stake">投入金额（USDT）</label>
-<input id="stake" type="number" min="1" step="0.01" value="5">
-<label for="target">目标价格（BTC，创建时默认用当前行情）</label>
-<div class="row">
-  <input id="target" type="number" min="0" step="0.01" placeholder="选填，默认当前价">
-  <button type="button" class="secondary small" id="useCurrent" style="margin-top:0">填入当前价</button>
+<div class="row3" style="margin-top:10px">
+  <div>
+    <label>单笔投入 (USDT)</label>
+    <input id="cfgStake" type="number" min="1" step="0.5" value="5">
+  </div>
+  <div>
+    <label>买入价 (0.01-0.99)</label>
+    <input id="cfgEntry" type="number" min="0.01" max="0.99" step="0.01" value="0.50">
+  </div>
+  <div>
+    <label>最大同时持仓</label>
+    <input id="cfgMaxPos" type="number" min="1" max="5" step="1" value="1">
+  </div>
 </div>
-<button id="create">创建模拟订单</button>
-<p class="note">规则对齐 Gate 事件合约：份数 = 投入金额 ÷ 买入价格。判断正确时每份结算 1 USDT，错误归零。目标价用于判断涨跌方向（最终价 ≥ 目标价 = 涨）。</p>
+<div class="row" style="margin-top:4px">
+  <div>
+    <label>信号阈值 (1m 涨跌% ≥)</label>
+    <input id="cfgTh1" type="number" min="0.01" step="0.01" value="0.04">
+  </div>
+  <div>
+    <label>信号阈值 (5m 涨跌% ≥)</label>
+    <input id="cfgTh5" type="number" min="0.01" step="0.01" value="0.06">
+  </div>
+</div>
+<div class="row" style="margin-top:4px">
+  <div>
+    <label>冷却秒数</label>
+    <input id="cfgCool" type="number" min="30" step="10" value="90">
+  </div>
+  <div>
+    <label>连续亏损暂停次数</label>
+    <input id="cfgStopLoss" type="number" min="2" max="10" step="1" value="4">
+  </div>
+</div>
+<p class="note">策略逻辑：1分钟与5分钟同向，且各自涨跌幅达到阈值 → 开仓。5分钟K线换根时用上一根收盘价自动结算所有待结算单。连续亏损达到设定次数会自动暂停，需手动再开。</p>
 </section>
 
 <section class="panel">
-<h2>模拟结算</h2>
-<label for="finalPrice">手动输入最终结算参考价（USDT）</label>
+<h2>手动下单（可与自动并存）</h2>
 <div class="row">
-  <input id="finalPrice" type="number" min="0" step="0.01" placeholder="请确认后输入结算参考价">
-  <button type="button" class="secondary small" id="use5mClose" style="margin-top:0">使用5分钟收盘价</button>
+  <div><label>方向</label><select id="direction"><option value="UP">看涨 UP</option><option value="DOWN">看跌 DOWN</option></select></div>
+  <div><label>买入价</label><input id="entry" type="number" min="0.01" max="0.99" step="0.01" value="0.50"></div>
 </div>
-<button id="settle" class="secondary">结算全部待结算订单</button>
-<button id="reset" class="danger" style="margin-top:8px">重置模拟账户</button>
-<p class="note">简化判定：最终价 ≥ 目标价 → 涨（UP 胜）；最终价 &lt; 目标价 → 跌（DOWN 胜）。此模型仅用于界面测试，不代表真实 Chainlink TWAP 与手续费。</p>
+<div class="row">
+  <div><label>投入金额</label><input id="stake" type="number" min="1" step="0.5" value="5"></div>
+  <div><label>目标价（默认当前价）</label>
+    <div class="row" style="grid-template-columns:1fr auto;gap:6px">
+      <input id="target" type="number" min="0" step="0.01" placeholder="当前价">
+      <button type="button" class="secondary small" id="useCurrent">当前</button>
+    </div>
+  </div>
+</div>
+<button id="create">手动创建订单</button>
+</section>
+
+<section class="panel">
+<h2>结算与管理</h2>
+<div class="row">
+  <div>
+    <label>最终结算价</label>
+    <div class="row" style="grid-template-columns:1fr auto;gap:6px">
+      <input id="finalPrice" type="number" min="0" step="0.01" placeholder="结算参考价">
+      <button type="button" class="secondary small" id="use5mClose">5m收盘</button>
+    </div>
+  </div>
+  <div style="display:flex;align-items:flex-end;gap:8px">
+    <button id="settle" class="secondary" style="flex:1">手动结算待处理</button>
+  </div>
+</div>
+<button id="reset" class="danger">重置账户（清空记录）</button>
 </section>
 
 <section class="panel">
 <h2>交易记录</h2>
-<div style="overflow-x:auto"><table><thead><tr><th>时间</th><th>方向</th><th>目标价</th><th>买入价</th><th>份数</th><th>投入</th><th>状态/结果</th></tr></thead><tbody id="records"><tr><td colspan="7" class="muted">暂无记录</td></tr></tbody></table></div>
+<div style="overflow-x:auto">
+<table>
+<thead><tr><th>时间</th><th>方向</th><th>目标</th><th>买入</th><th>份数</th><th>投入</th><th>结果</th></tr></thead>
+<tbody id="records"><tr><td colspan="7" class="muted">暂无记录</td></tr></tbody>
+</table>
+</div>
 </section>
-<p class="note">重要提示：本网页是本地模拟原型。数据保存在浏览器 localStorage，刷新不会丢失。行情连接需要网络。它不提供投资建议、不保证盈利，也不连接 Gate 账户或执行真实交易。</p>
+
+<section class="panel">
+<h2>运行日志</h2>
+<div class="log" id="logBox"></div>
+</section>
+
+<p class="note">免责声明：本工具为本地学习与策略测试原型。刷新页面后数据仍保留在浏览器 localStorage。不构成任何投资建议，不连接 Gate 真实账户，不执行真实交易。市场有风险，模拟结果不代表未来真实表现。</p>
 </main>
+
 <script>
-const STORAGE_KEY = 'btc5m_sim_v3';
-let balance=100, totalPnl=0, settled=0, wins=0, orders=[];
-let currentPrice=0, last1m=null, last5m=null;
-const history1m=[], history5m=[];
-const MAX_HISTORY=8;
+(() => {
+const STORAGE = 'btc5m_auto_v4';
+const $ = id => document.getElementById(id);
+const fmt = n => Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtP = n => Number(n).toFixed(2);
+const fmtVol = n => Number(n).toLocaleString('en-US',{maximumFractionDigits:3});
+const nowStr = () => new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 
-const $=id=>document.getElementById(id);
-const fmt=n=>Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-const fmtVol=n=>Number(n).toLocaleString('en-US',{maximumFractionDigits:4});
-const fmtP=n=>Number(n).toFixed(2);
+let balance = 100, totalPnl = 0, settled = 0, wins = 0;
+let orders = [];
+let currentPrice = 0;
+let last1m = null, last5m = null;
+let last5mKey = null;
+let history1m = [], history5m = [];
+const MAX_H = 6;
+let consecutiveLoss = 0;
+let lastTradeAt = 0;
+let autoPaused = false;
+let pnlHistory = [];
 
-function loadState(){
-  try{
-    const raw=localStorage.getItem(STORAGE_KEY);
-    if(!raw) return;
-    const s=JSON.parse(raw);
-    if(typeof s.balance==='number') balance=s.balance;
-    if(typeof s.totalPnl==='number') totalPnl=s.totalPnl;
-    if(typeof s.settled==='number') settled=s.settled;
-    if(typeof s.wins==='number') wins=s.wins;
-    if(Array.isArray(s.orders)) orders=s.orders;
-  }catch(e){}
-}
-function saveState(){
-  try{
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({balance,totalPnl,settled,wins,orders}));
-  }catch(e){}
-}
-
-function render(){
-  $('balance').textContent=fmt(balance)+' USDT';
-  $('pnl').textContent=(totalPnl>=0?'+':'')+fmt(totalPnl)+' USDT';
-  $('pnl').className=totalPnl>=0?'good':'bad';
-  $('count').textContent=settled;
-  $('winrate').textContent=settled?((wins/settled)*100).toFixed(1)+'%':'—';
-  const rows=orders.slice().reverse().map(o=>{
-    const statusClass = o.status.includes('胜')?'good':(o.status.includes('未')?'bad':'');
-    return `<tr>
-      <td>${o.time}</td>
-      <td>${o.dir==='UP'?'看涨':'看跌'}</td>
-      <td>${fmt(o.target)}</td>
-      <td>${fmtP(o.entry)}</td>
-      <td>${fmtP(o.shares)}</td>
-      <td>${fmt(o.stake)}</td>
-      <td class="${statusClass}">${o.status}</td>
-    </tr>`;
-  }).join('');
-  $('records').innerHTML=rows||'<tr><td colspan="7" class="muted">暂无记录</td></tr>';
-  saveState();
+function log(msg, important) {
+  const box = $('logBox');
+  const div = document.createElement('div');
+  div.innerHTML = '<span class="t">[' + nowStr() + ']</span> ' + msg;
+  if (important) div.style.color = 'var(--text)';
+  box.prepend(div);
+  while (box.children.length > 80) box.removeChild(box.lastChild);
 }
 
-function setTrend(el, o, c){
-  if(!el) return;
-  const diff = c - o;
-  const pct = o ? (diff / o * 100) : 0;
-  if(Math.abs(pct) < 0.02){
-    el.textContent='震荡'; el.className='trend flat';
-  }else if(diff > 0){
-    el.textContent='上涨'; el.className='trend up';
-  }else{
-    el.textContent='下跌'; el.className='trend down';
-  }
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORAGE) || '{}');
+    if (typeof s.balance === 'number') balance = s.balance;
+    if (typeof s.totalPnl === 'number') totalPnl = s.totalPnl;
+    if (typeof s.settled === 'number') settled = s.settled;
+    if (typeof s.wins === 'number') wins = s.wins;
+    if (Array.isArray(s.orders)) orders = s.orders;
+    if (Array.isArray(s.pnlHistory)) pnlHistory = s.pnlHistory.slice(-20);
+    if (typeof s.consecutiveLoss === 'number') consecutiveLoss = s.consecutiveLoss;
+  } catch(e) {}
+}
+function save() {
+  try {
+    localStorage.setItem(STORAGE, JSON.stringify({
+      balance, totalPnl, settled, wins, orders, pnlHistory, consecutiveLoss
+    }));
+  } catch(e) {}
 }
 
-function updateSignal(){
-  const box=$('signalBox');
-  if(!last1m || !last5m){
-    box.className='signal flat';
-    box.textContent='等待 K线数据后生成简单趋势提示…';
+function renderBars() {
+  const wrap = $('pnlBars');
+  if (!pnlHistory.length) {
+    wrap.innerHTML = '<div class="muted" style="font-size:11px">暂无结算记录</div>';
     return;
   }
-  const o1=Number(last1m.o), c1=Number(last1m.c);
-  const o5=Number(last5m.o), c5=Number(last5m.c);
-  const chg1=o1?(c1-o1)/o1*100:0;
-  const chg5=o5?(c5-o5)/o5*100:0;
-  let text='', cls='flat';
-  if(chg1>0.05 && chg5>0.03){
-    text=`短时偏多：1分钟 +${chg1.toFixed(3)}%，5分钟 +${chg5.toFixed(3)}%。可参考看涨，注意这只是现货K线辅助，不是预测。`;
-    cls='up';
-  }else if(chg1<-0.05 && chg5<-0.03){
-    text=`短时偏空：1分钟 ${chg1.toFixed(3)}%，5分钟 ${chg5.toFixed(3)}%。可参考看跌，注意这只是现货K线辅助，不是预测。`;
-    cls='down';
-  }else{
-    text=`震荡/分歧：1分钟 ${chg1>=0?'+':''}${chg1.toFixed(3)}%，5分钟 ${chg5>=0?'+':''}${chg5.toFixed(3)}%。方向不明确，谨慎操作。`;
-    cls='flat';
-  }
-  box.className='signal '+cls;
-  box.textContent=text;
+  const max = Math.max(...pnlHistory.map(Math.abs), 0.01);
+  wrap.innerHTML = pnlHistory.map(v => {
+    const h = Math.max(4, Math.round(Math.abs(v) / max * 44));
+    const cls = v >= 0 ? 'up' : 'down';
+    return '<div class="bar ' + cls + '" style="height:' + h + 'px" title="' + (v>=0?'+':'') + v.toFixed(2) + '"></div>';
+  }).join('');
 }
 
-function updateKlinePanel(prefix, candle, listEl, history){
-  if(!candle) return;
-  const o=Number(candle.o), h=Number(candle.h), l=Number(candle.l), c=Number(candle.c), v=Number(candle.v);
-  // 正确 ID：o1m / h1m / … / trend1m
-  const elO=$('o'+prefix), elH=$('h'+prefix), elL=$('l'+prefix), elC=$('c'+prefix), elChg=$('chg'+prefix), elV=$('v'+prefix), elTrend=$('trend'+prefix);
-  if(elO) elO.textContent=fmt(o);
-  if(elH) elH.textContent=fmt(h);
-  if(elL) elL.textContent=fmt(l);
-  if(elC) elC.textContent=fmt(c);
-  const chg = o ? ((c-o)/o*100) : 0;
-  if(elChg){
-    elChg.textContent=(chg>=0?'+':'')+chg.toFixed(3)+'%';
-    elChg.className=chg>=0?'good':'bad';
-  }
-  if(elV) elV.textContent=fmtVol(v);
-  setTrend(elTrend, o, c);
+function render() {
+  $('balance').textContent = fmt(balance) + ' USDT';
+  const pnlEl = $('pnl');
+  pnlEl.textContent = (totalPnl >= 0 ? '+' : '') + fmt(totalPnl);
+  pnlEl.className = totalPnl >= 0 ? 'good' : 'bad';
+  $('count').textContent = settled;
+  $('winrate').textContent = settled ? ((wins / settled) * 100).toFixed(1) + '%' : '—';
 
-  const t = candle.t ? new Date(Number(candle.t)*1000).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '';
-  const key = String(candle.t || (o+'-'+c));
-  if(!history.length || history[0].key !== key){
+  const rows = orders.slice().reverse().map(o => {
+    let cls = '';
+    if (o.status.indexOf('胜') >= 0) cls = 'good';
+    else if (o.status.indexOf('未') >= 0 || o.status.indexOf('亏') >= 0) cls = 'bad';
+    return '<tr><td>' + o.time + '</td><td>' + (o.dir === 'UP' ? '涨' : '跌') + '</td><td>' + fmt(o.target) + '</td><td>' + fmtP(o.entry) + '</td><td>' + fmtP(o.shares) + '</td><td>' + fmt(o.stake) + '</td><td class="' + cls + '">' + o.status + '</td></tr>';
+  }).join('');
+  $('records').innerHTML = rows || '<tr><td colspan="7" class="muted">暂无记录</td></tr>';
+  renderBars();
+  save();
+}
+
+function setTrend(el, o, c) {
+  if (!el) return;
+  const pct = o ? ((c - o) / o * 100) : 0;
+  if (Math.abs(pct) < 0.015) {
+    el.textContent = '震荡'; el.className = 'trend flat';
+  } else if (pct > 0) {
+    el.textContent = '上涨'; el.className = 'trend up';
+  } else {
+    el.textContent = '下跌'; el.className = 'trend down';
+  }
+}
+
+function updateKline(prefix, candle, listEl, history) {
+  if (!candle) return;
+  const o = +candle.o, h = +candle.h, l = +candle.l, c = +candle.c, v = +candle.v;
+  const set = (id, val, cls) => {
+    const el = $(id);
+    if (!el) return;
+    el.textContent = val;
+    if (cls) el.className = cls;
+  };
+  set('o' + prefix, fmt(o));
+  set('h' + prefix, fmt(h));
+  set('l' + prefix, fmt(l));
+  set('c' + prefix, fmt(c));
+  const chg = o ? (c - o) / o * 100 : 0;
+  set('chg' + prefix, (chg >= 0 ? '+' : '') + chg.toFixed(3) + '%', chg >= 0 ? 'good' : 'bad');
+  set('v' + prefix, fmtVol(v));
+  setTrend($('trend' + prefix), o, c);
+
+  const t = candle.t ? new Date(+candle.t * 1000).toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '';
+  const key = String(candle.t || o + '-' + c);
+  if (!history.length || history[0].key !== key) {
     history.unshift({key, t, o, c, chg});
-    if(history.length > MAX_HISTORY) history.pop();
-  }else{
+    if (history.length > MAX_H) history.pop();
+  } else {
     history[0] = {key, t, o, c, chg};
   }
-  if(listEl){
-    listEl.innerHTML = history.map(h=>`<div><span>${h.t||'—'}</span><span class="${h.chg>=0?'good':'bad'}">${fmt(h.c)} (${h.chg>=0?'+':''}${h.chg.toFixed(3)}%)</span></div>`).join('') || '<div class="muted">暂无数据</div>';
+  if (listEl) {
+    listEl.innerHTML = history.map(x =>
+      '<div><span>' + (x.t || '—') + '</span><span class="' + (x.chg>=0?'good':'bad') + '">' + fmt(x.c) + ' (' + (x.chg>=0?'+':'') + x.chg.toFixed(3) + '%)</span></div>'
+    ).join('') || '<div class="muted">暂无</div>';
   }
-  updateSignal();
 }
 
-$('create').onclick=()=>{
-  const stake=Number($('stake').value);
-  let entry=Number($('entry').value);
-  let target=Number($('target').value);
-  if(!Number.isFinite(entry) || entry<0.01 || entry>0.99){alert('买入价格请在 0.01～0.99 之间');return}
-  if(!Number.isFinite(stake)||stake<=0){alert('请输入大于 0 的投入金额');return}
-  if(stake>balance){alert('模拟余额不足');return}
-  if(!target || target<=0){
-    if(currentPrice>0) target=currentPrice;
-    else {alert('请先等待行情，或手动输入目标价格');return}
+function updateSignalUI(dir, reason) {
+  const box = $('signalBox');
+  if (!dir) {
+    box.className = 'signal flat';
+    box.textContent = reason || '暂无明显同向信号';
+    return;
+  }
+  box.className = 'signal ' + (dir === 'UP' ? 'up' : 'down');
+  box.textContent = (dir === 'UP' ? '▲ 看涨信号' : '▼ 看跌信号') + ' · ' + reason;
+}
+
+function getConfig() {
+  return {
+    stake: Math.max(1, +$('cfgStake').value || 5),
+    entry: Math.min(0.99, Math.max(0.01, +$('cfgEntry').value || 0.5)),
+    maxPos: Math.max(1, Math.min(5, +$('cfgMaxPos').value || 1)),
+    th1: Math.max(0.01, +$('cfgTh1').value || 0.04),
+    th5: Math.max(0.01, +$('cfgTh5').value || 0.06),
+    cool: Math.max(30, +$('cfgCool').value || 90),
+    stopLoss: Math.max(2, +$('cfgStopLoss').value || 4)
+  };
+}
+
+function pendingCount() {
+  return orders.filter(o => o.status === '待结算').length;
+}
+
+function createOrder(dir, entry, stake, target, source) {
+  const cfg = getConfig();
+  if (stake > balance) {
+    log('余额不足，跳过下单', true);
+    return false;
+  }
+  if (pendingCount() >= cfg.maxPos) {
+    log('已达最大持仓数，跳过', true);
+    return false;
   }
   const shares = stake / entry;
-  balance-=stake;
+  balance -= stake;
   orders.push({
-    time:new Date().toLocaleTimeString('zh-CN'),
-    dir:$('direction').value,
+    time: nowStr(),
+    dir,
     stake,
     entry,
     shares,
     target,
-    status:'待结算'
+    status: '待结算',
+    source: source || '手动'
   });
+  lastTradeAt = Date.now();
+  log((source || '手动') + '下单 ' + (dir === 'UP' ? '看涨' : '看跌') + ' 目标' + fmt(target) + ' 投入' + fmt(stake) + ' 份数' + fmtP(shares), true);
   render();
-  alert(`模拟订单已创建\n方向：${$('direction').value==='UP'?'看涨':'看跌'}\n份数：${shares.toFixed(2)}\n目标价：${fmt(target)}`);
-};
+  return true;
+}
 
-$('settle').onclick=()=>{
-  const final=Number($('finalPrice').value);
-  if(!final||final<=0){alert('请输入有效的最终参考价');return}
-  const pending=orders.filter(o=>o.status==='待结算');
-  if(!pending.length){alert('目前没有待结算订单');return}
-  pending.forEach(o=>{
-    // 最终价 ≥ 目标价 → 涨；否则跌
-    const isUp = final >= o.target;
-    const win = o.dir==='UP' ? isUp : !isUp;
+function settleOrders(finalPrice, reason) {
+  const pending = orders.filter(o => o.status === '待结算');
+  if (!pending.length) return 0;
+  let n = 0;
+  pending.forEach(o => {
+    const isUp = finalPrice >= o.target;
+    const win = o.dir === 'UP' ? isUp : !isUp;
     const returned = win ? o.shares * 1 : 0;
-    balance+=returned;
-    totalPnl+=returned - o.stake;
+    const pnl = returned - o.stake;
+    balance += returned;
+    totalPnl += pnl;
     settled++;
-    if(win) wins++;
-    o.status = win ? `胜出 +${fmt(returned-o.stake)}` : `未胜 -${fmt(o.stake)}`;
-    o.final = final;
+    if (win) {
+      wins++;
+      consecutiveLoss = 0;
+    } else {
+      consecutiveLoss++;
+    }
+    o.status = win ? ('胜 +' + fmt(pnl)) : ('未胜 ' + fmt(pnl));
+    o.final = finalPrice;
+    pnlHistory.push(pnl);
+    if (pnlHistory.length > 20) pnlHistory.shift();
+    n++;
   });
+  log((reason || '结算') + ' 共' + n + '笔，参考价 ' + fmt(finalPrice), true);
+  const cfg = getConfig();
+  if (consecutiveLoss >= cfg.stopLoss && $('autoOn').checked) {
+    $('autoOn').checked = false;
+    autoPaused = true;
+    updateAutoBadge();
+    log('连续亏损 ' + consecutiveLoss + ' 次，已自动暂停自动交易', true);
+  }
   render();
-  alert('模拟结算完成');
+  return n;
+}
+
+function evaluateSignal() {
+  if (!last1m || !last5m) {
+    updateSignalUI(null, '等待 K线数据…');
+    return null;
+  }
+  const o1 = +last1m.o, c1 = +last1m.c;
+  const o5 = +last5m.o, c5 = +last5m.c;
+  const chg1 = o1 ? (c1 - o1) / o1 * 100 : 0;
+  const chg5 = o5 ? (c5 - o5) / o5 * 100 : 0;
+  const cfg = getConfig();
+
+  let dir = null;
+  let reason = '';
+  if (chg1 >= cfg.th1 && chg5 >= cfg.th5) {
+    dir = 'UP';
+    reason = '1m +' + chg1.toFixed(3) + '% / 5m +' + chg5.toFixed(3) + '% 同向上涨';
+  } else if (chg1 <= -cfg.th1 && chg5 <= -cfg.th5) {
+    dir = 'DOWN';
+    reason = '1m ' + chg1.toFixed(3) + '% / 5m ' + chg5.toFixed(3) + '% 同向下跌';
+  } else {
+    reason = '1m ' + (chg1 >= 0 ? '+' : '') + chg1.toFixed(3) + '% · 5m ' + (chg5 >= 0 ? '+' : '') + chg5.toFixed(3) + '% 未达同向阈值';
+  }
+  updateSignalUI(dir, reason);
+  return dir ? {dir, reason, chg1, chg5} : null;
+}
+
+function tryAutoTrade() {
+  if (!$('autoOn').checked || autoPaused) return;
+  if (!currentPrice || currentPrice <= 0) return;
+  const cfg = getConfig();
+  if (Date.now() - lastTradeAt < cfg.cool * 1000) return;
+  if (pendingCount() >= cfg.maxPos) return;
+
+  const sig = evaluateSignal();
+  if (!sig) return;
+
+  createOrder(sig.dir, cfg.entry, cfg.stake, currentPrice, '自动');
+}
+
+function on5mUpdate(candle) {
+  const key = String(candle.t);
+  if (last5mKey && last5mKey !== key) {
+    const prevClose = last5m ? +last5m.c : 0;
+    if (prevClose > 0 && pendingCount() > 0) {
+      settleOrders(prevClose, '5分钟换根自动结算');
+    }
+  }
+  last5mKey = key;
+  last5m = candle;
+  updateKline('5m', candle, $('list5m'), history5m);
+  evaluateSignal();
+  tryAutoTrade();
+}
+
+function updateAutoBadge() {
+  const on = $('autoOn').checked && !autoPaused;
+  const badge = $('autoBadge');
+  badge.textContent = on ? '运行中' : (autoPaused ? '已暂停' : '已关闭');
+  badge.className = 'badge ' + (on ? 'on' : 'off');
+}
+
+$('autoOn').onchange = () => {
+  if ($('autoOn').checked) {
+    autoPaused = false;
+    consecutiveLoss = 0;
+    log('自动交易已开启', true);
+  } else {
+    log('自动交易已关闭', true);
+  }
+  updateAutoBadge();
 };
 
-$('reset').onclick=()=>{
-  if(!confirm('确定重置模拟账户？余额将回到 100 USDT，记录清空。')) return;
-  balance=100; totalPnl=0; settled=0; wins=0; orders=[];
+$('create').onclick = () => {
+  const dir = $('direction').value;
+  let entry = +$('entry').value;
+  let stake = +$('stake').value;
+  let target = +$('target').value;
+  if (!Number.isFinite(entry) || entry < 0.01 || entry > 0.99) {
+    alert('买入价请在 0.01～0.99');
+    return;
+  }
+  if (!Number.isFinite(stake) || stake <= 0) {
+    alert('投入金额需大于 0');
+    return;
+  }
+  if (!target || target <= 0) {
+    if (currentPrice > 0) target = currentPrice;
+    else {
+      alert('请等待行情或手动输入目标价');
+      return;
+    }
+  }
+  createOrder(dir, entry, stake, target, '手动');
+};
+
+$('settle').onclick = () => {
+  const final = +$('finalPrice').value;
+  if (!final || final <= 0) {
+    alert('请输入有效结算价');
+    return;
+  }
+  if (!pendingCount()) {
+    alert('没有待结算订单');
+    return;
+  }
+  settleOrders(final, '手动结算');
+};
+
+$('reset').onclick = () => {
+  if (!confirm('确定重置？余额回到 100，记录清空。')) return;
+  balance = 100; totalPnl = 0; settled = 0; wins = 0;
+  orders = []; pnlHistory = []; consecutiveLoss = 0; autoPaused = false;
+  $('autoOn').checked = false;
+  updateAutoBadge();
   render();
+  log('账户已重置', true);
 };
 
-$('useCurrent').onclick=()=>{
-  if(currentPrice>0){
-    $('target').value=currentPrice.toFixed(2);
-  }else alert('当前还没有有效行情价格');
+$('useCurrent').onclick = () => {
+  if (currentPrice > 0) $('target').value = currentPrice.toFixed(2);
+  else alert('暂无有效行情');
 };
-
-$('use5mClose').onclick=()=>{
-  if(last5m && last5m.c) $('finalPrice').value=Number(last5m.c).toFixed(2);
-  else alert('当前还没有 5 分钟 K 线收盘价');
+$('use5mClose').onclick = () => {
+  if (last5m && last5m.c) $('finalPrice').value = (+last5m.c).toFixed(2);
+  else alert('暂无 5m 收盘价');
 };
 
 let ws, retryTimer;
-function connect(){
-  try{
-    ws=new WebSocket('wss://api.gateio.ws/ws/v4/');
-    ws.onopen=()=>{
-      $('connection').textContent='已连接 Gate 公共行情（Ticker + 1m/5m K线）';
-      $('dot').className='dot ok';
-      const t=Math.floor(Date.now()/1000);
-      ws.send(JSON.stringify({time:t,channel:'spot.tickers',event:'subscribe',payload:['BTC_USDT']}));
-      ws.send(JSON.stringify({time:t,channel:'spot.candlesticks',event:'subscribe',payload:['1m','BTC_USDT']}));
-      ws.send(JSON.stringify({time:t,channel:'spot.candlesticks',event:'subscribe',payload:['5m','BTC_USDT']}));
+function connect() {
+  try {
+    ws = new WebSocket('wss://api.gateio.ws/ws/v4/');
+    ws.onopen = () => {
+      $('connection').textContent = '已连接 Gate 公共行情';
+      $('dot').className = 'dot ok';
+      const t = Math.floor(Date.now() / 1000);
+      ws.send(JSON.stringify({time: t, channel: 'spot.tickers', event: 'subscribe', payload: ['BTC_USDT']}));
+      ws.send(JSON.stringify({time: t, channel: 'spot.candlesticks', event: 'subscribe', payload: ['1m', 'BTC_USDT']}));
+      ws.send(JSON.stringify({time: t, channel: 'spot.candlesticks', event: 'subscribe', payload: ['5m', 'BTC_USDT']}));
+      log('行情连接成功');
     };
-    ws.onmessage=e=>{
-      let m;try{m=JSON.parse(e.data)}catch{return}
+    ws.onmessage = e => {
+      let m;
+      try { m = JSON.parse(e.data); } catch { return; }
 
-      if(m.channel==='spot.tickers'&&m.event==='update'&&m.result){
-        const r=m.result;
-        currentPrice=Number(r.last);
-        if(currentPrice>0)$('lastPrice').textContent=fmt(currentPrice)+' USDT';
-        if(r.change_percentage!==undefined){
-          const chg=Number(r.change_percentage);
-          $('change').textContent=(chg>=0?'+':'')+chg.toFixed(2)+'%';
-          $('change').className=chg>=0?'good':'bad';
+      if (m.channel === 'spot.tickers' && m.event === 'update' && m.result) {
+        const r = m.result;
+        currentPrice = +r.last;
+        if (currentPrice > 0) $('lastPrice').textContent = fmt(currentPrice) + ' USDT';
+        if (r.change_percentage !== undefined) {
+          const chg = +r.change_percentage;
+          const el = $('change');
+          el.textContent = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+          el.className = chg >= 0 ? 'good' : 'bad';
         }
-        if(r.high_24h)$('high').textContent=fmt(r.high_24h);
-        if(r.low_24h)$('low').textContent=fmt(r.low_24h);
-        $('updated').textContent=new Date().toLocaleTimeString('zh-CN');
+        if (r.high_24h) $('high').textContent = fmt(r.high_24h);
+        if (r.low_24h) $('low').textContent = fmt(r.low_24h);
+        $('updated').textContent = nowStr();
       }
 
-      if(m.channel==='spot.candlesticks'&&m.event==='update'&&m.result){
+      if (m.channel === 'spot.candlesticks' && m.event === 'update' && m.result) {
         const r = Array.isArray(m.result) ? m.result[0] : m.result;
-        if(!r || !r.n) return;
-        const name = String(r.n || '');
-        if(name.startsWith('1m_')){
+        if (!r || !r.n) return;
+        const name = String(r.n);
+        if (name.startsWith('1m_')) {
           last1m = r;
-          updateKlinePanel('1m', r, $('list1m'), history1m);
-        }else if(name.startsWith('5m_')){
-          last5m = r;
-          updateKlinePanel('5m', r, $('list5m'), history5m);
+          updateKline('1m', r, $('list1m'), history1m);
+          evaluateSignal();
+          tryAutoTrade();
+        } else if (name.startsWith('5m_')) {
+          on5mUpdate(r);
         }
       }
     };
-    ws.onerror=()=>{
-      $('connection').textContent='行情连接遇到问题，正在尝试重连';
-      $('dot').className='dot bad';
+    ws.onerror = () => {
+      $('connection').textContent = '连接异常，重试中';
+      $('dot').className = 'dot bad';
     };
-    ws.onclose=()=>{
-      $('connection').textContent='连接已断开，5 秒后重连';
-      $('dot').className='dot bad';
+    ws.onclose = () => {
+      $('connection').textContent = '已断开，5秒后重连';
+      $('dot').className = 'dot bad';
       clearTimeout(retryTimer);
-      retryTimer=setTimeout(connect,5000);
+      retryTimer = setTimeout(connect, 5000);
     };
-  }catch(e){
-    $('connection').textContent='无法建立行情连接';
-    $('dot').className='dot bad';
+  } catch (err) {
+    $('connection').textContent = '无法建立连接';
+    $('dot').className = 'dot bad';
   }
 }
 
-loadState();
+load();
 render();
+updateAutoBadge();
 connect();
+log('系统启动，等待行情…');
+})();
 </script>
 </body>
 </html>
